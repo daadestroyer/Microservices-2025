@@ -1,13 +1,13 @@
-package com.thecoderstv.hotelservice_lcwd;
+package com.thecoderstv.ratingservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class HotelserviceLcwdApplication {
+public class RatingserviceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(HotelserviceLcwdApplication.class, args);
+		SpringApplication.run(RatingserviceApplication.class, args);
 	}
 
 }
