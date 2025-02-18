@@ -1,0 +1,6 @@
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: false #meaning this service itself will not gonna register
+    fetch-registry: false # as a client is should not register to fetch registry
