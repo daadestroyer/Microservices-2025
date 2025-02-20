@@ -37,15 +37,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUser(String userId) {
         User user = this.userRepo.findById(userId).get();
-        //
-        String ratingUrl = "http://localhost:8083/rating/user-id/"+userId;
+        // api call to rating service
+        String ratingUrl = "http://RATING-SERVICE/rating/user-id/" + userId;
         Ratings[] ratingsArray = restTemplate.getForObject(ratingUrl, Ratings[].class);
         List<Ratings> ratingsOfUser = Arrays.asList(ratingsArray);
 
-        //        user.setRatings(ratingsOfUser);
+        // user.setRatings(ratingsOfUser);
         List<Ratings> ratingsListIncludingHotel = ratingsOfUser.stream().map(rating -> {
             // api call to hotel service
-            String hotelUrl = "http://localhost:8082/hotel/"+rating.getHotelId();
+            String hotelUrl = "http://HOTEL-SERVICE/hotel/" + rating.getHotelId();
             Hotel hotel = restTemplate.getForEntity(hotelUrl, Hotel.class).getBody();
 
             // set the hotel to rating
