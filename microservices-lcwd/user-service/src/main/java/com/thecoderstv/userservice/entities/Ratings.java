@@ -6,6 +6,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Builder
 public class Ratings {
     private String ratingId;
     private String userId;
