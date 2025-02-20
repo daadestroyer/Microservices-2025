@@ -1,5 +1,6 @@
 package com.thecoderstv.userservice.service.impl;
 
+import com.thecoderstv.userservice.entities.Hotel;
 import com.thecoderstv.userservice.entities.Ratings;
 import com.thecoderstv.userservice.entities.User;
 import com.thecoderstv.userservice.exceptions.ResourceNotFoundException;
@@ -9,14 +10,13 @@ import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -38,9 +38,23 @@ public class UserServiceImpl implements UserService {
     public User getUser(String userId) {
         User user = this.userRepo.findById(userId).get();
         //
-        String url = "http://localhost:8083/rating/user-id/"+userId;
-        ArrayList<Ratings> ratingsOfUser = restTemplate.getForObject(url, ArrayList.class);
-        user.setRatings(ratingsOfUser);
+        String ratingUrl = "http://localhost:8083/rating/user-id/"+userId;
+        Ratings[] ratingsArray = restTemplate.getForObject(ratingUrl, Ratings[].class);
+        List<Ratings> ratingsOfUser = Arrays.asList(ratingsArray);
+
+        //        user.setRatings(ratingsOfUser);
+        List<Ratings> ratingsListIncludingHotel = ratingsOfUser.stream().map(rating -> {
+            // api call to hotel service
+            String hotelUrl = "http://localhost:8082/hotel/"+rating.getHotelId();
+            Hotel hotel = restTemplate.getForEntity(hotelUrl, Hotel.class).getBody();
+
+            // set the hotel to rating
+            rating.setHotel(hotel);
+
+            // return the rating
+            return rating;
+        }).collect(Collectors.toList());
+        user.setRatings(ratingsListIncludingHotel);
         return user;
 
     }
