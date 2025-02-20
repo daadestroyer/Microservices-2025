@@ -4,6 +4,7 @@ import com.thecoderstv.userservice.entities.Hotel;
 import com.thecoderstv.userservice.entities.Ratings;
 import com.thecoderstv.userservice.entities.User;
 import com.thecoderstv.userservice.exceptions.ResourceNotFoundException;
+import com.thecoderstv.userservice.external.service.HotelServiceFeign;
 import com.thecoderstv.userservice.repo.UserRepo;
 import com.thecoderstv.userservice.service.UserService;
 import org.apache.juli.logging.Log;
@@ -28,12 +29,41 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private HotelServiceFeign hotelServiceFeign;
+
     @Override
     public User saveUser(User user) {
         user.setUserId(UUID.randomUUID().toString());
         return this.userRepo.save(user);
     }
 
+//    USING REST TEMPLATE
+//    @Override
+//    public User getUser(String userId) {
+//        User user = this.userRepo.findById(userId).get();
+//        // api call to rating service
+//        String ratingUrl = "http://RATING-SERVICE/rating/user-id/" + userId;
+//        Ratings[] ratingsArray = restTemplate.getForObject(ratingUrl, Ratings[].class);
+//        List<Ratings> ratingsOfUser = Arrays.asList(ratingsArray);
+//
+//        // user.setRatings(ratingsOfUser);
+//        List<Ratings> ratingsListIncludingHotel = ratingsOfUser.stream().map(rating -> {
+//            // api call to hotel service
+//            String hotelUrl = "http://HOTEL-SERVICE/hotel/" + rating.getHotelId();
+//            Hotel hotel = restTemplate.getForEntity(hotelUrl, Hotel.class).getBody();
+//
+//            // set the hotel to rating
+//            rating.setHotel(hotel);
+//
+//            // return the rating
+//            return rating;
+//        }).collect(Collectors.toList());
+//        user.setRatings(ratingsListIncludingHotel);
+//        return user;
+//
+//    }
+    // USING OPEN FEIGN
     @Override
     public User getUser(String userId) {
         User user = this.userRepo.findById(userId).get();
@@ -45,8 +75,8 @@ public class UserServiceImpl implements UserService {
         // user.setRatings(ratingsOfUser);
         List<Ratings> ratingsListIncludingHotel = ratingsOfUser.stream().map(rating -> {
             // api call to hotel service
-            String hotelUrl = "http://HOTEL-SERVICE/hotel/" + rating.getHotelId();
-            Hotel hotel = restTemplate.getForEntity(hotelUrl, Hotel.class).getBody();
+
+            Hotel hotel = hotelServiceFeign.getHotelByHotelId(rating.getHotelId());
 
             // set the hotel to rating
             rating.setHotel(hotel);
