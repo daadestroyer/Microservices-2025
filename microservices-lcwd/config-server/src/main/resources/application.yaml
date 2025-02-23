@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: CONFIG-SERVER
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: git@github.com:daadestroyer/config-server-lcwd-2025.git # this is github repo url
+          clone-on-startup: true
+
+
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "*"
+    endpoint:
+      health:
+        show-details: always

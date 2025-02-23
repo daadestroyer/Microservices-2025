@@ -75,7 +75,6 @@ public class UserServiceImpl implements UserService {
         // user.setRatings(ratingsOfUser);
         List<Ratings> ratingsListIncludingHotel = ratingsOfUser.stream().map(rating -> {
             // api call to hotel service
-
             Hotel hotel = hotelServiceFeign.getHotelByHotelId(rating.getHotelId());
 
             // set the hotel to rating

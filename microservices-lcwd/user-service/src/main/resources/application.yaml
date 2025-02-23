@@ -16,12 +16,47 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
 
-
-eureka:
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: http://localhost:8761/eureka
+  eureka:
+    client:
+      fetch-registry: true
+      register-with-eureka: true
+      service-url:
+        defaultZone: http://localhost:8761/eureka
     instance:
-      prefer-ip-address: true
+      prefer-ip-address: true  # Moved out of service-url block
+
+  config:
+    import: configserver:http://localhost:1111/  # Ensure trailing `/` in Config Server URL
+
+# Uncomment to use specific profiles
+# spring:
+#   profiles:
+#     active: dev
+
+# Actuator configuration for monitoring
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+# Resilience4j Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      ratingHotelBreaker:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50  # If failure rate > 50%, move to OPEN state
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 6s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
