@@ -3,6 +3,7 @@ package com.thecoderstv.userservice.controller;
 import com.thecoderstv.userservice.entities.User;
 import com.thecoderstv.userservice.service.UserService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,14 @@ public class UserController {
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
+    int retryCount = 1;
     @GetMapping("/{userId}")
-    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
+//    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
+    @Retry(name="ratingHotelService",fallbackMethod = "ratingHotelFallback")
     public ResponseEntity<?> getUser(@PathVariable String userId) {
         // this api is calling internally rating service and hotel service
+        log.info("Retry Count : "+retryCount);
+        retryCount++;
         User user = userService.getUser(userId);
         if (user != null) {
             return new ResponseEntity<>(user, HttpStatus.OK);
@@ -38,8 +43,10 @@ public class UserController {
     }
 
     // ratingHotelFallback method for circuit breaker
+
     public ResponseEntity<?> ratingHotelFallback(String userId, Exception ex) {
         log.info("Fallback method executed because Rating Service is down : " + ex.getMessage());
+
         User dummy = User
                 .builder()
                 .email("dummy@gmail.com")
