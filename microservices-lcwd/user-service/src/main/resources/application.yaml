@@ -61,8 +61,18 @@ resilience4j:
         slidingWindowSize: 10
         slidingWindowType: COUNT_BASED
 
+# RETRY configuration
   retry:
     instances:
       ratingHotelService:
         max-attempts: 3
         wait-duration: 5s
+
+# Rate Limiter Configuration
+
+  ratelimiter:
+    instances:
+      userRateLimiter:
+        limit-refresh-period: 4s
+        limit-for-period: 2  # meaning we want to allow only 2 request/4 sec
+        timeout-duration: 2s

@@ -3,6 +3,7 @@ package com.thecoderstv.userservice.controller;
 import com.thecoderstv.userservice.entities.User;
 import com.thecoderstv.userservice.service.UserService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -30,7 +31,8 @@ public class UserController {
     int retryCount = 1;
     @GetMapping("/{userId}")
 //    @CircuitBreaker(name = "ratingHotelBreaker", fallbackMethod = "ratingHotelFallback")
-    @Retry(name="ratingHotelService",fallbackMethod = "ratingHotelFallback")
+//    @Retry(name="ratingHotelService",fallbackMethod = "ratingHotelFallback")
+    @RateLimiter(name = "userRateLimiter",fallbackMethod = "ratingHotelFallback")
     public ResponseEntity<?> getUser(@PathVariable String userId) {
         // this api is calling internally rating service and hotel service
         log.info("Retry Count : "+retryCount);
