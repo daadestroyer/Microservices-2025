@@ -2,77 +2,84 @@ spring:
   application:
     name: USER-SERVICE
 
-  datasource:
-    url: jdbc:mysql://localhost:3306/microservices_lcwd_2025
-    username: root
-    password: root1998
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-
-  eureka:
-    client:
-      fetch-registry: true
-      register-with-eureka: true
-      service-url:
-        defaultZone: http://localhost:8761/eureka
-    instance:
-      prefer-ip-address: true  # Moved out of service-url block
-
   config:
-    import: configserver:http://localhost:1111/  # Ensure trailing `/` in Config Server URL
+    import: optional:configserver:http://localhost:1111  # Ensure trailing `/` in Config Server URL
 
-# Uncomment to use specific profiles
-# spring:
-#   profiles:
-#     active: dev
-
-# Actuator configuration for monitoring
-management:
-  health:
-    circuitbreakers:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: health
-  endpoint:
-    health:
-      show-details: always
-
-# Resilience4j Circuit Breaker Configuration
-resilience4j:
-  circuitbreaker:
-    instances:
-      ratingHotelBreaker:
-        registerHealthIndicator: true
-        eventConsumerBufferSize: 10
-        failureRateThreshold: 50  # If failure rate > 50%, move to OPEN state
-        minimumNumberOfCalls: 5
-        automaticTransitionFromOpenToHalfOpenEnabled: true
-        waitDurationInOpenState: 6s
-        permittedNumberOfCallsInHalfOpenState: 3
-        slidingWindowSize: 10
-        slidingWindowType: COUNT_BASED
-
-# RETRY configuration
-  retry:
-    instances:
-      ratingHotelService:
-        max-attempts: 3
-        wait-duration: 5s
-
-# Rate Limiter Configuration
-
-  ratelimiter:
-    instances:
-      userRateLimiter:
-        limit-refresh-period: 4s
-        limit-for-period: 2  # meaning we want to allow only 2 request/4 sec
-        timeout-duration: 2s
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/microservices_lcwd_2025
+#    username: root
+#    password: root1998
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#
+#  jpa:
+#    hibernate:
+#      ddl-auto: update
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.MySQL8Dialect
+#
+#  eureka:
+#    client:
+#      fetch-registry: true
+#      register-with-eureka: true
+#      service-url:
+#        defaultZone: http://localhost:8761/eureka
+#    instance:
+#      prefer-ip-address: true  # Moved out of service-url block
+#
+#
+#
+## Uncomment to use specific profiles
+## spring:
+##   profiles:
+##     active: dev
+#
+## Actuator configuration for monitoring
+#management:
+#  health:
+#    circuitbreakers:
+#      enabled: true
+#  endpoints:
+#    web:
+#      exposure:
+#        include: health
+#  endpoint:
+#    health:
+#      show-details: always
+#
+## Resilience4j Circuit Breaker Configuration
+#resilience4j:
+#  circuitbreaker:
+#    instances:
+#      ratingHotelBreaker:
+#        registerHealthIndicator: true
+#        eventConsumerBufferSize: 10
+#        failureRateThreshold: 50  # If failure rate > 50%, move to OPEN state
+#        minimumNumberOfCalls: 5
+#        automaticTransitionFromOpenToHalfOpenEnabled: true
+#        waitDurationInOpenState: 6s
+#        permittedNumberOfCallsInHalfOpenState: 3
+#        slidingWindowSize: 10
+#        slidingWindowType: COUNT_BASED
+#
+## RETRY configuration
+#  retry:
+#    instances:
+#      ratingHotelService:
+#        max-attempts: 3
+#        wait-duration: 5s
+#
+## Rate Limiter Configuration
+#
+#  ratelimiter:
+#    instances:
+#      userRateLimiter:
+#        limit-refresh-period: 4s
+#        limit-for-period: 2  # meaning we want to allow only 2 request/4 sec
+#        timeout-duration: 2s
